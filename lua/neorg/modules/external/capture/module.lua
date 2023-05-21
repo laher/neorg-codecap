@@ -52,6 +52,7 @@ module.public = {
             io.close(file)
 
             vim.cmd("bd!") -- close this prompt
+            vim.notify('Todo item added to ' .. inbox, 'info',{ title = title })
         end, {
             center_x = true,
             center_y = true,
