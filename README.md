@@ -2,17 +2,29 @@
 
     **PRE-ALPHA** - breaking changes incoming soon.
 
-Super basic capture module for neorg. I just want to capture with a line number
+Super basic capture module for neorg. I just want to capture a TODO with a popup.
+
+NOTE: this is just a quick hack while the neorg-gtd feature is unavailable.
+Once it's ready, I won't need this any more.
 
 ## Commands
 
-`:Neorg capture popup` - opens a small popup where you enter a todo. The todo ends up in a workspace file called `inbox.norg`
-`:Neorg capture inbox` - takes you to your inbox
-
+- `:Neorg capture popup` - opens a small popup where you enter a todo.
+The todo ends up in a workspace file called `inbox.norg`
+- `:Neorg capture inbox` - opens your inbox file
 
 ## Config
 
 Nah.
+
+## Plans
+
+Tagging with a date .. key mappings.
+
+Hopefully I'll add a visual mode command to enter the selected filename+linenums
+into the todo entry.
+
+Maybe a separate module for refiling.
 
 ## 🔧 Installation
 
