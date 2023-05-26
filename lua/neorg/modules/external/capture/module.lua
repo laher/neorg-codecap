@@ -19,22 +19,10 @@ module.load = function()
         },
     })
 
-    local cmd = 'lua require"gitlinker".get_buf_range_url("v", {action_callback = function(url) vim.cmd("Neorg capture popup_with " .. url) end})<cr>'
-    vim.api.nvim_create_user_command("GitCapture", cmd, {range = true})
-    vim.api.nvim_set_keymap('v', '<leader>z', '<cmd>' .. cmd, {})
-    -- vim.api.nvim_set_keymap('v', '<localleader>z', function() end, {})
-    -- vim.api.nvim_set_keymap('v', '<localleader>z', function()
-    --   require"gitlinker".get_buf_range_url("v", { action_callback = function(url)
-    --     vim.notify(url)
-    --   end })
-    -- end, {})
-    -- huh?
-    -- vim.api.nvim_create_user_command("GitCapture", function(opts)
-    --       vim.notify(vim.inspect(opts))
-    --       require'gitlinker'.get_buf_range_url('v',
-    --       { action_callback = module.public.show_capture_popup_with_url })
-    --   -- module.public.show_capture_popup(opts)
-    -- end, {desc = 'capture git link to inbox', range = 2})
+    local cmd = 'lua require"gitlinker".get_buf_range_url("%s", {action_callback = function(url) vim.cmd("Neorg capture popup_with " .. url) end})<cr>'
+    -- vim.api.nvim_create_user_command("GitCapture", cmd, {range = true})
+    vim.api.nvim_set_keymap('v', '<leader>cc', '<cmd>' .. string.format(cmd, 'v'), {})
+    vim.api.nvim_set_keymap('n', '<leader>cc', '<cmd>' .. string.format(cmd, 'n'), {})
 end
 
 module.private = {
@@ -49,14 +37,13 @@ module.public = {
         vim.cmd.e(module.private.inbox_filename())
     end,
     show_capture_popup = function()
-        local url
-
-        local mode = vim.api.nvim_get_mode()
-        if mode.mode == 'v' then
-          url = require'gitlinker'.get_buf_range_url('v')
-        else
-          url = require'gitlinker'.get_buf_range_url('n')
-        end
+      local url
+      local mode = vim.api.nvim_get_mode()
+      if mode.mode == 'v' then
+        url = require'gitlinker'.get_buf_range_url('v')
+      else
+        url = require'gitlinker'.get_buf_range_url('n')
+      end
       module.public.show_capture_popup_with_url(url)
 
     end,
@@ -76,6 +63,8 @@ module.public = {
         -- end
         if not url then -- oops not a git repo. use a file
           url = vim.api.nvim_buf_get_name(0)
+          local line = vim.api.nvim_win_get_cursor(0)
+          url = url .. ":" .. line[1]
         end
         local short
         if #url > 20 then
