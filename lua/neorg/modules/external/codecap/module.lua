@@ -1,8 +1,8 @@
 ---@diagnostic disable: undefined-global
 require("neorg.modules.base")
 
-local title = "codecapture"
-local module = neorg.modules.create("external.codecapture")
+local title = "codecap"
+local module = neorg.modules.create("external.codecap")
 module.setup = function()
     return { success = true, requires = { "core.neorgcmd", "core.ui", "core.dirman" } }
 end

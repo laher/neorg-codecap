@@ -1,5 +1,5 @@
 local M = {}
-local mappings = require("codecapture.mappings")
+local mappings = require("codecap.mappings")
 
 function M.setup(config)
     if config then

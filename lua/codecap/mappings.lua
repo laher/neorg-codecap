@@ -11,7 +11,7 @@ local function set_keymap(mode, keys, mapping_opts)
   api.nvim_set_keymap(
     mode,
     keys,
-    "<cmd>lua require'codecapture'.cap('" .. mode .. "')<cr>",
+    "<cmd>lua require'codecap'.cap('" .. mode .. "')<cr>",
     mapping_opts
   )
 end

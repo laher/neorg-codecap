@@ -1,4 +1,4 @@
-# neorg-codecapture
+# neorg-codecap
 
     **PRE-ALPHA** - breaking changes incoming soon.
 
@@ -18,68 +18,31 @@ The todo ends up in a workspace file called `inbox.norg`
 
 ## Config
 
-Nah.
+So far, just keymappings to `require'codecap'.cap('n')` ('n' or 'v' for normal/visual mode).
 
 ## Plans
 
-Tagging with a date .. key mappings.
-
-Hopefully I'll add a visual mode command to enter the selected filename+linenums
+- [x] key mappings (visual, normal modes)
+- Maybe variants on the same cap func.
+  - [ ] Tagging with a date.
+  - [ ] copying actual code blocks, not jus gitlinks.
+  - [ ] opening the inbox as you capture. Split,etc.
+- [x] Hopefully I'll add a visual mode command to enter the selected filename+linenums
 into the todo entry.
-
-Maybe a separate module for refiling.
+- Maybe a separate module for refiling/organising. Depends on GTD progress.
 
 ## 🔧 Installation
 
-First, make sure to pull this plugin down.
-This plugin does not run any code in of itself.
+First, you need a recent neovim, neorg and gitlinker.
 
-It requires Neorg to load it first:
+- [Neorg](https://github.com/nvim-neorg/neorg).
+- [Gitlinker](https://github.com/ruifm/gitlinker.nvim).
 
-You can install it through your favorite plugin manager:
+You can install them all through your favorite vim plugin manager.
 
--
-  <details>
-  <summary><a href="https://github.com/wbthomason/packer.nvim">packer.nvim</a></summary>
+Something like this but this is WIP
+(I use lazy.nvim so other samples might not actually work)
 
-  ```lua
-  use {
-      "nvim-neorg/neorg",
-      config = function()
-          require('neorg').setup {
-              load = {
-                  ["core.defaults"] = {},
-                  ...
-                  ["external.codecapture"] = {},
-              },
-          }
-      end,
-      requires = { "nvim-lua/plenary.nvim", "laher/neorg-codecapture" },
-  }
-  ```
-
-- <details>
-  <summary><a href="https://github.com/junegunn/vim-plug">vim-plug</a></summary>
-
-  ```vim
-  Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim' | Plug 'laher/neorg-codecapture'
-  ```
-
-  You can then put this initial configuration in your `init.vim` file:
-
-  ```vim
-  lua << EOF
-  require('neorg').setup {
-    load = {
-        ["core.defaults"] = {},
-        ...
-        ["external.codecapture"] = {},
-    },
-  }
-  EOF
-  ```
-
-  </details>
 - <details>
   <summary><a href="https://github.com/folke/lazy.nvim">lazy.nvim</a></summary>
 
@@ -91,13 +54,61 @@ You can install it through your favorite plugin manager:
               load = {
                   ["core.defaults"] = {},
                   ...
-                  ["external.codecapture"] = {},
+                  ["external.codecap"] = {},
               },
           },
-          dependencies = { { "nvim-lua/plenary.nvim" }, { "laher/neorg-codecapture" } },
-      }
+
+          requires = {
+            "nvim-lua/plenary.nvim",
+            "ruifm/gitlinker.nvim",
+            {
+                "laher/neorg-codecap",
+                keys = {
+                    { '<leader>cc', function()
+                            require'codecap'.cap('v')
+                        end, desc = 'capture a thing', mode = 'v'
+                    },
+                    { '<leader>cc', function()
+                            require'codecap'.cap('n')
+                        end, desc = 'capture a thing', mode = 'n'
+                    },
+                },
+                config = function()
+                    require'codecap'.setup({})
+                end
+            },
+         },
+      },
   })
   ```
 
   </details>
 
+
+- <details>
+  <summary><a href="https://github.com/junegunn/vim-plug">vim-plug</a></summary>
+
+  ```vim
+  Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim' | Plug 'ruifm/gitlinker.nvim' | Plug 'laher/neorg-codecap'
+  ```
+
+  You can then put this initial configuration in your `init.vim` file.
+
+  TODO test the setup, add key mappings. (Please see lazy config for now, for clues)
+
+  ```vim
+  lua << EOF
+  require('neorg').setup {
+    load = {
+        ["core.defaults"] = {},
+        ...
+        ["external.codecap"] = {},
+    },
+  }
+  require('codecap').setup {
+
+  }
+  EOF
+  ```
+
+  </details>
