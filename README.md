@@ -4,10 +4,13 @@
 
 Super basic capture module for neorg, for capturing notes referring to code.
 
-I just want to capture a TODO with a popup, which captures the file/line, and its
+I just wanted to capture a TODO with a popup, which captures the file/line, and its
 associated git URL.
 
-NOTE: this is just a quick hack while the neorg-gtd feature is unavailable.
+It's a little neorg module, but it's also a little vim plugin which does the capturing
+(typically, outside of neorg) & then invokes the module.
+
+NOTE: this began just as a quick hack while the neorg-gtd feature is unavailable.
 Maybe this will be superceded or eventually be reworked on top of GTD.
 
 ## Commands
@@ -18,7 +21,9 @@ The todo ends up in a workspace file called `inbox.norg`
 
 ## Config
 
-So far, just keymappings to `require'codecap'.cap('n')` ('n' or 'v' for normal/visual mode).
+So far, just keymappings to `require'codecap'.cap('n', { ui = 'vsplit' })` ('n' or
+'v' for normal/visual mode), `{ ui = 'vsplit' }` or `{ ui = 'popup' }` to change
+the capture UI.
 
 ## Plans
 
@@ -65,11 +70,11 @@ Something like this but this is WIP
                 "laher/neorg-codecap",
                 keys = {
                     { '<leader>cc', function()
-                            require'codecap'.cap('v')
+                            require'codecap'.cap('v', { ui = 'vsplit' })
                         end, desc = 'capture a thing', mode = 'v'
                     },
                     { '<leader>cc', function()
-                            require'codecap'.cap('n')
+                            require'codecap'.cap('n', { ui = 'popup' })
                         end, desc = 'capture a thing', mode = 'n'
                     },
                 },
