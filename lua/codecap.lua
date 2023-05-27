@@ -2,17 +2,17 @@ local M = {}
 local mappings = require("codecap.mappings")
 
 function M.setup(config)
-  -- note: using external mappings instead .. for now
+    -- note: using external mappings instead .. for now
     if config then
         -- any config?
-   --     mappings.set(config.mappings)
+        --     mappings.set(config.mappings)
     else
-   --     mappings.set()
+        --     mappings.set()
     end
 end
 
 function M.cap(mode, opts)
-    vim.notify(mode .. ' - ' .. vim.inspect(opts))
+    vim.notify(mode .. " - " .. vim.inspect(opts))
     local ui
     if opts and opts.ui then
         ui = opts.ui

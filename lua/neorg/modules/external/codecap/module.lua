@@ -58,18 +58,18 @@ local function write_to_inbox(url, text)
 ]]
     else
         io.close(inbox_file) -- close then re-open in append mode
-        preamble = ''
+        preamble = ""
     end
-        -- new TODO with a link
+    -- new TODO with a link
     local fname = basename(url)
     text = preamble .. string.format(
-            [[- ( ) %s
+        [[- ( ) %s
 {%s}[%s]
 ]],
-            text,
-            url,
-            fname
-        )
+        text,
+        url,
+        fname
+    )
     inbox_file = io.open(inbox, "a")
     io.output(inbox_file)
     io.write(text)
@@ -89,8 +89,8 @@ module.public = {
         vim.cmd.vs(module.private.inbox_filename())
         -- move to penultimate line and insert-mode
         vim.cmd("$-1")
-        vim.cmd('norm! $')
-        vim.cmd('startinsert')
+        vim.cmd("norm! $")
+        vim.cmd("startinsert")
     end,
 
     -- url already supplied
@@ -117,7 +117,7 @@ module.public = {
 module.on_event = function(event)
     local url
     if #event.content > 0 then
-      url = event.content[1]
+        url = event.content[1]
     end
     if event.split_type[2] == "codecap.vsplit" then
         vim.schedule(function()

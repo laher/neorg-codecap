@@ -11,8 +11,8 @@ end
 
 function M.set(mappings)
     mappings = mappings or "<leader>cc"
-    set_keymap("n", mappings, { ui = 'popup' })
-    set_keymap("v", mappings, { ui = 'vsplit' }, { silent = false })
+    set_keymap("n", mappings, { ui = "popup" })
+    set_keymap("v", mappings, { ui = "vsplit" }, { silent = false })
 end
 
 return M
