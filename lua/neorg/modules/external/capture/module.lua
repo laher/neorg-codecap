@@ -13,13 +13,13 @@ module.load = function()
             args = 1,
             subcommands = {
                 popup = { args = 0, name = "capture.popup" },
-                popup_with = { args = 1, name = "capture.popup_with" },
+                popup_with_url = { args = 1, name = "capture.popup_with_url" },
                 inbox = { args = 0, name = "capture.inbox" },
             },
         },
     })
 
-    local cmd = 'lua require"gitlinker".get_buf_range_url("%s", {action_callback = function(url) vim.cmd("Neorg capture popup_with " .. url) end})<cr>'
+    local cmd = 'lua require"gitlinker".get_buf_range_url("%s", {action_callback = function(url) vim.cmd("Neorg capture popup_with_url " .. url) end})<cr>'
     -- vim.api.nvim_create_user_command("GitCapture", cmd, {range = true})
     vim.api.nvim_set_keymap('v', '<leader>cc', '<cmd>' .. string.format(cmd, 'v'), {})
     vim.api.nvim_set_keymap('n', '<leader>cc', '<cmd>' .. string.format(cmd, 'n'), {})
@@ -31,6 +31,12 @@ module.private = {
         return workspace .. "/inbox.norg"
     end,
 }
+
+
+
+local function basename(path)
+  return path:sub(path:find("/[^/]*$") + 1)
+end
 
 module.public = {
     open_inbox = function()
@@ -45,7 +51,6 @@ module.public = {
         url = require'gitlinker'.get_buf_range_url('n')
       end
       module.public.show_capture_popup_with_url(url)
-
     end,
 
     show_capture_popup_with_url = function(url)
@@ -81,8 +86,12 @@ module.public = {
                 text = [[* Inbox
 - ( ) ]] .. text
             else
-                io.close(file) -- need to re-open in append mode
-                text = "- ( ) " .. url .. " : " .. text
+                io.close(file) -- close then re-open in append mode
+                -- new TODO with a link
+                local fname = basename(url)
+                text = string.format([[- ( ) %s
+{%s}[%s]
+]], text, url, fname)
             end
             file = io.open(inbox, "a")
             io.output(file)
@@ -107,7 +116,7 @@ module.public = {
 module.on_event = function(event)
     if event.split_type[2] == "capture.popup" then
         vim.schedule(module.public.show_capture_popup)
-    elseif event.split_type[2] == "capture.popup_with" then
+    elseif event.split_type[2] == "capture.popup_with_url" then
         --vim.notify(vim.inspect(event))
         vim.schedule(function()
           module.public.show_capture_popup_with_url(event.content[1])
@@ -120,7 +129,7 @@ end
 module.events.subscribed = {
     ["core.neorgcmd"] = {
         ["capture.popup"] = true,
-        ["capture.popup_with"] = true,
+        ["capture.popup_with_url"] = true,
         ["capture.inbox"] = true,
     },
 }
