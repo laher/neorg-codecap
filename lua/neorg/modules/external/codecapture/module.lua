@@ -1,28 +1,28 @@
 ---@diagnostic disable: undefined-global
 require("neorg.modules.base")
 
-local title = "external.capture"
-local module = neorg.modules.create("external.capture")
+local title = "codecapture"
+local module = neorg.modules.create("external.codecapture")
 module.setup = function()
     return { success = true, requires = { "core.neorgcmd", "core.ui", "core.dirman" } }
 end
 
 module.load = function()
     module.required["core.neorgcmd"].add_commands_from_table({
-        capture = {
+        codecap = {
             args = 1,
             subcommands = {
-                popup = { args = 0, name = "capture.popup" },
-                popup_with_url = { args = 1, name = "capture.popup_with_url" },
-                inbox = { args = 0, name = "capture.inbox" },
+                popup = { args = 0, name = "codecap.popup" },
+                popup_with_url = { args = 1, name = "codecap.popup_with_url" },
+                inbox = { args = 0, name = "codecap.inbox" },
             },
         },
     })
 
-    local cmd = 'lua require"gitlinker".get_buf_range_url("%s", {action_callback = function(url) vim.cmd("Neorg capture popup_with_url " .. url) end})<cr>'
+ --   local cmd = 'lua require"gitlinker".get_buf_range_url("%s", {action_callback = function(url) vim.cmd("Neorg capture popup_with_url " .. url) end})<cr>'
     -- vim.api.nvim_create_user_command("GitCapture", cmd, {range = true})
-    vim.api.nvim_set_keymap('v', '<leader>cc', '<cmd>' .. string.format(cmd, 'v'), {})
-    vim.api.nvim_set_keymap('n', '<leader>cc', '<cmd>' .. string.format(cmd, 'n'), {})
+--    vim.api.nvim_set_keymap('v', '<leader>cc', '<cmd>' .. string.format(cmd, 'v'), {})
+--    vim.api.nvim_set_keymap('n', '<leader>cc', '<cmd>' .. string.format(cmd, 'n'), {})
 end
 
 module.private = {
@@ -114,23 +114,23 @@ module.public = {
 }
 
 module.on_event = function(event)
-    if event.split_type[2] == "capture.popup" then
+    if event.split_type[2] == "codecap.popup" then
         vim.schedule(module.public.show_capture_popup)
-    elseif event.split_type[2] == "capture.popup_with_url" then
+    elseif event.split_type[2] == "codecap.popup_with_url" then
         --vim.notify(vim.inspect(event))
         vim.schedule(function()
           module.public.show_capture_popup_with_url(event.content[1])
         end)
-    elseif event.split_type[2] == "capture.inbox" then
+    elseif event.split_type[2] == "codecap.inbox" then
         vim.schedule(module.public.open_inbox)
     end
 end
 
 module.events.subscribed = {
     ["core.neorgcmd"] = {
-        ["capture.popup"] = true,
-        ["capture.popup_with_url"] = true,
-        ["capture.inbox"] = true,
+        ["codecap.popup"] = true,
+        ["codecap.popup_with_url"] = true,
+        ["codecap.inbox"] = true,
     },
 }
 

@@ -1,17 +1,20 @@
-# neorg-capture
+# neorg-codecapture
 
     **PRE-ALPHA** - breaking changes incoming soon.
 
-Super basic capture module for neorg. I just want to capture a TODO with a popup.
+Super basic capture module for neorg, for capturing notes referring to code.
+
+I just want to capture a TODO with a popup, which captures the file/line, and its
+associated git URL.
 
 NOTE: this is just a quick hack while the neorg-gtd feature is unavailable.
-Once it's ready, I won't need this any more.
+Maybe this will be superceded or eventually be reworked on top of GTD.
 
 ## Commands
 
-- `:Neorg capture popup` - opens a small popup where you enter a todo.
+- `:Neorg codecap popup` - opens a small popup where you enter a todo.
 The todo ends up in a workspace file called `inbox.norg`
-- `:Neorg capture inbox` - opens your inbox file
+- `:Neorg codecap inbox` - opens your inbox file
 
 ## Config
 
@@ -47,11 +50,11 @@ You can install it through your favorite plugin manager:
               load = {
                   ["core.defaults"] = {},
                   ...
-                  ["external.capture"] = {},
+                  ["external.codecapture"] = {},
               },
           }
       end,
-      requires = { "nvim-lua/plenary.nvim", "laher/neorg-capture" },
+      requires = { "nvim-lua/plenary.nvim", "laher/neorg-codecapture" },
   }
   ```
 
@@ -59,7 +62,7 @@ You can install it through your favorite plugin manager:
   <summary><a href="https://github.com/junegunn/vim-plug">vim-plug</a></summary>
 
   ```vim
-  Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim' | Plug 'laher/neorg-capture'
+  Plug 'nvim-neorg/neorg' | Plug 'nvim-lua/plenary.nvim' | Plug 'laher/neorg-codecapture'
   ```
 
   You can then put this initial configuration in your `init.vim` file:
@@ -70,7 +73,7 @@ You can install it through your favorite plugin manager:
     load = {
         ["core.defaults"] = {},
         ...
-        ["external.capture"] = {},
+        ["external.codecapture"] = {},
     },
   }
   EOF
@@ -88,10 +91,10 @@ You can install it through your favorite plugin manager:
               load = {
                   ["core.defaults"] = {},
                   ...
-                  ["external.capture"] = {},
+                  ["external.codecapture"] = {},
               },
           },
-          dependencies = { { "nvim-lua/plenary.nvim" }, { "laher/neorg-capture" } },
+          dependencies = { { "nvim-lua/plenary.nvim" }, { "laher/neorg-codecapture" } },
       }
   })
   ```
