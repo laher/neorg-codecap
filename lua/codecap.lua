@@ -27,24 +27,41 @@ function M.get_range(mode, add_current_line_on_normal_mode)
   return { lstart = lstart, lend = lend }
 end
 
-function M.cap(mode, opts)
-    -- vim.notify(mode .. " - " .. vim.inspect(opts))
-    local inbox
-    if opts and opts.inbox then
-        inbox = opts.inbox
-    else
-        inbox = "vsplit"
-    end
+function M.diffcap(mode)
+    local subcmd = 'diff'
     -- if gitlinker then call neorg-codecap via a callback
     local url = require("gitlinker").get_buf_range_url(mode, {
+        add_current_line_on_normal_mode = false, -- whole file
         action_callback = function(url)
-            local cmd = string.format("Neorg codecap %s %s %s", inbox, mode, url)
+            local cmd = string.format("Neorg codecap %s %s %s", subcmd, mode, url)
             vim.cmd(cmd)
         end,
     })
     if not url then
         -- otherwise just use neorg-codecap
-        local cmd = string.format("Neorg codecap %s %s", inbox, mode)
+        local cmd = string.format("Neorg codecap %s %s", subcmd, mode)
+        vim.cmd(cmd)
+    end
+end
+
+function M.cap(mode, opts)
+    -- vim.notify(mode .. " - " .. vim.inspect(opts))
+    local subcmd
+    if opts and opts.inbox then
+        subcmd = opts.inbox
+    else
+        subcmd = "vsplit"
+    end
+    -- if gitlinker then call neorg-codecap via a callback
+    local url = require("gitlinker").get_buf_range_url(mode, {
+        action_callback = function(url)
+            local cmd = string.format("Neorg codecap %s %s %s", subcmd, mode, url)
+            vim.cmd(cmd)
+        end,
+    })
+    if not url then
+        -- otherwise just use neorg-codecap
+        local cmd = string.format("Neorg codecap %s %s", subcmd, mode)
         vim.cmd(cmd)
     end
 end

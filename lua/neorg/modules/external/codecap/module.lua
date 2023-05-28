@@ -17,6 +17,7 @@ module.load = function()
                 split = { min_args = 1, max_args = 2, name = "codecap.split" },
                 edit = { min_args = 1, max_args = 2, name = "codecap.edit" },
                 inbox = { args = 0, name = "codecap.inbox" },
+                diff = { min_args= 1, max_args = 2, name = "codecap.diff" },
             },
         },
     })
@@ -47,6 +48,36 @@ module.private = {
 
     basename = function(path)
         return path:sub(path:find("/[^/]*$") + 1)
+    end,
+
+    git_diff_file = function()
+      local job = require("plenary.job")
+      local output
+      local p = job:new({
+        command = "git",
+        args = {"diff", vim.fn.expand('%')},
+        cwd = vim.fn.expand('%:h'),
+      })
+      p:after_success(function(j)
+        output = j:result()
+      end)
+      p:sync()
+      return output or {}
+    end,
+
+    get_url_and_diff = function(mode, url)
+        if not url or url == '' or url == '-' then
+          vim.notify('not in a git repo. can\'t git-diff', 'warn', {title = title})
+          return nil
+        end
+        local codeblock
+        local lines = module.private.git_diff_file()
+        if lines then
+          codeblock = table.concat(lines, "\n")
+          codeblock = string.format('@code %s\n%s\n@end\n', 'diff', codeblock)
+        end
+        if not codeblock then codeblock= '' end
+        return { url, '', codeblock }
     end,
 
     get_url_and_range = function(mode, url)
@@ -115,8 +146,8 @@ module.public = {
         -- move cursor?
     end,
 
-    show_capture_edit = function(mode, url, edit_type)
-        module.public.show_capture(mode, url, function(codeblock)
+    show_capture_edit = function(mode, url, diff, edit_type)
+        module.public.show_capture(mode, url, diff, function(codeblock)
 
           -- local codeblock
           -- url, _, codeblock = unpack(module.private.get_url_and_range(mode, url))
@@ -138,9 +169,13 @@ module.public = {
     end,
 
     -- url already supplied
-    show_capture = function(mode, url, callback)
+    show_capture = function(mode, url, diff, callback)
         local short, codeblock
-        url, short, codeblock = unpack(module.private.get_url_and_range(mode, url))
+        if diff then
+          url, short, codeblock = unpack(module.private.get_url_and_diff(mode, url))
+        else
+          url, short, codeblock = unpack(module.private.get_url_and_range(mode, url))
+        end
         -- vim.notify(codeblock)
         module.required["core.ui"].create_prompt("NeorgCapture", short .. " : ", function(description)
             vim.cmd("bd!") -- close this prompt
@@ -172,21 +207,23 @@ module.on_event = function(event)
     end
     if event.split_type[2] == "codecap.vsplit" then
         vim.schedule(function()
-            module.public.show_capture_edit(mode, url, 'vsplit')
+            module.public.show_capture_edit(mode, url, false, 'vsplit')
         end)
     elseif event.split_type[2] == "codecap.split" then
         vim.schedule(function()
-            module.public.show_capture_edit(mode, url, 'split')
+            module.public.show_capture_edit(mode, url, false, 'split')
         end)
     elseif event.split_type[2] == "codecap.edit" then
         vim.schedule(function()
-            module.public.show_capture_edit(mode, url, 'edit')
+            module.public.show_capture_edit(mode, url, false, 'edit')
         end)
     elseif event.split_type[2] == "codecap.noshow" then
-        --vim.notify(vim.inspect(event))
-
         vim.schedule(function()
-            module.public.show_capture(mode, url)
+            module.public.show_capture(mode, url, false)
+        end)
+    elseif event.split_type[2] == "codecap.diff" then
+        vim.schedule(function()
+            module.public.show_capture_edit(mode, url, true, 'edit')
         end)
     elseif event.split_type[2] == "codecap.inbox" then
         vim.schedule(module.public.open_inbox)
@@ -200,6 +237,7 @@ module.events.subscribed = {
         ["codecap.split"] = true,
         ["codecap.edit"] = true,
         ["codecap.inbox"] = true,
+        ["codecap.diff"] = true,
     },
 }
 
