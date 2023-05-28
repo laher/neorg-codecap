@@ -66,7 +66,7 @@ module.private = {
         -- vim.notify(vim.inspect(range))
         local codeblock
         if range.lstart then
-          local lines = vim.api.nvim_buf_get_lines(0, range.lstart, range.lend, false)
+          local lines = vim.api.nvim_buf_get_lines(0, range.lstart-1, range.lend, false)
           if lines and #lines then
             local ft = vim.bo.filetype
             codeblock = table.concat(lines, "\n")
