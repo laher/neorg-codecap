@@ -5,13 +5,13 @@
 Super basic capture module for neorg, for capturing notes referring to code.
 
 I just wanted to capture a TODO with a popup, which captures the file/line, and its
-associated git URL.
+associated git URL. It can also capture a git-diff for a file.
 
 It's a little neorg module, but it's also a little vim plugin which does the capturing
 (typically, outside of neorg) & then invokes the module.
 
 NOTE: this began just as a quick hack while the neorg-gtd feature is unavailable.
-Maybe this will be superceded or eventually be reworked on top of GTD.
+Maybe this will eventually be superceded or reworked on top of GTD.
 
 ## Example usage
 
@@ -26,15 +26,17 @@ function neorg.is_loaded()
 end
 ```
 
-With a mapping to `require'codecap'.cap('n', { inbox = 'vsplit' })`, you would first
-See a single-line popup, where you might enter "investigate is_loaded",
+With the default mapping of `<leader>ccv`  (mapped to
+`require'codecap'.cap('n', { inbox = 'vsplit' })`), you would first
+See a single-line popup, where you might enter "Investigate is_loaded.",
 and press `<cr>`.
 
-You'd see a new vsplit showing `$workspace/inbox.norg`, with the following content:
+You'd see a new vsplit showing `$workspace/inbox.norg`, with the following content
+(imagine the `|` is the cursor).
 
 ```norg
 * Inbox
-- ( ) Investigate is_loaded.
+- ( ) Investigate is_loaded.|
 @code lua
 --- Returns whether or not Neorg is loaded
 ---@return boolean
@@ -45,12 +47,10 @@ end
 See {https://github.com/nvim-neorg/neorg/blob/main/lua/neorg.lua#L130-L134}[neorg.lua#L130-L134]
 ```
 
-The git link is produced by gitlinker.nvim. If it weren't in git, then you'd see
-a file link instead.
+The git link is produced by gitlinker.nvim. If the file weren't in git, then you'd
+see a file link instead.
 
-## Config
-
-So far, you can just override keymappings.
+## Key mappings
 
 Defaults mappings are as follows:
 
@@ -60,12 +60,34 @@ Defaults mappings are as follows:
 | `<leader>ccs` | capture then open inbox in a horizontal split |
 | `<leader>cce` | capture then open inbox into current pane |
 | `<leader>cci` | open inbox |
-| `<leader>ccd` | capture `git-diff` of current file, then open inbox |
+| `<leader>ccd` | capture `git-diff` of current file, then open inbox. |
 
-_See lazy.nvim config to ensure that neorg is loaded when you invoke your mappings._
 
-You can override these with a map in your config (`mappings = {}` to remove them
-all).
+To keep these default, just call `setup({})` with an empty table:
+
+```lua
+require'codecap'.setup({})
+```
+
+You can override them when you setup `codecap`. These
+apply normal/visual mode mappings as appropriate for each command:
+
+```lua
+require'codecap'.setup({ mappings = {
+    ['<leader>ccv'] = 'vsplit',
+    ['<leader>ccs'] = 'split',
+    ['<leader>cce'] = 'edit',
+    ['<leader>ccn'] = 'noshow',
+    ['<leader>ccc'] = 'inbox',
+    ['<leader>ccd'] = 'diff',
+}})
+```
+
+Set `mappings = {}` if you don't want any mappings.
+
+```lua
+require'codecap'.setup({ mappings = {} })
+```
 
 ### Manually adding mappings
 
@@ -99,6 +121,8 @@ of the current buffer.
 - `:Neorg codecap [vplit|edit|split|noshow]` - open a small popup where you enter
 a todo. The todo ends up in a workspace file called `inbox.norg`. The different
 subcommands dictate whether & how to show the todo in the inbox.
+- `:Neorg codecap diff` - similar to `edit` except it captures a diff of the whole
+file, and it only works in `normal` mode.
 
 ## Known issues/limitations
 
@@ -116,7 +140,7 @@ file links will just show the first line.
   - [ ] Tagging with a date.
 - [x] Hopefully I'll add a visual mode command to enter the selected filename+linenums
 into the todo entry.
-- [ ] capture git-diffs?
+- [x] capture git-diffs?
 - Maybe a separate module for refiling/organising. Depends on GTD progress.
 
 ## 🔧 Installation
