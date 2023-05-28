@@ -13,52 +13,109 @@ It's a little neorg module, but it's also a little vim plugin which does the cap
 NOTE: this began just as a quick hack while the neorg-gtd feature is unavailable.
 Maybe this will be superceded or eventually be reworked on top of GTD.
 
+## Example usage
+
+Given a file `neorg/lua/neorg.lua` with the following content in your git repo,
+selected in visual mode:
+
+```lua
+--- Returns whether or not Neorg is loaded
+---@return boolean
+function neorg.is_loaded()
+    return configuration.started
+end
+```
+
+With a mapping to `require'codecap'.cap('n', { inbox = 'vsplit' })`, you would first
+See a single-line popup, where you might enter "investigate is_loaded",
+and press `<cr>`.
+
+You'd see a new vsplit showing `$workspace/inbox.norg`, with the following content:
+
+```norg
+* Inbox
+- ( ) Investigate is_loaded.
+@code lua
+--- Returns whether or not Neorg is loaded
+---@return boolean
+function neorg.is_loaded()
+    return configuration.started
+end
+@end
+See {https://github.com/nvim-neorg/neorg/blob/main/lua/neorg.lua#L130-L134}[neorg.lua#L130-L134]
+```
+
+The git link is produced by gitlinker.nvim. If it weren't in git, then you'd see
+a file link instead.
+
 ## Config
 
-So far, just keymappings to `require'codecap'.cap('n', { ui = 'vsplit' })` ('n' or
-'v' for normal/visual mode), `{ ui = 'vsplit' }` or `{ ui = 'popup' }` to change
-the capture UI.
+So far, you can just override keymappings.
 
-The `cap()` function invokes neorg commands ...
+Defaults mappings are as follows:
+
+| mapping       | description    |
+|---------------|----------------|
+| `<leader>ccv` | capture then open inbox in a visual split |
+| `<leader>ccs` | capture then open inbox in a horizontal split |
+| `<leader>cce` | capture then open inbox into current pane |
+| `<leader>ccc` | open inbox |
+
+_See lazy.nvim config to ensure that neorg is loaded when you invoke your mappings._
+
+You can override these with a map in your config (`mappings = {}` to remove them
+all).
+
+### Manually adding mappings
+
+You can define a mapping like: `require'codecap'.cap('n', { inbox = 'vsplit' })`
+
+- `'n'` or `'v'` for normal/visual mode.
+- `{ inbox = 'vsplit' }`, to dictate whether to display
+the inbox.
+
+The `codecap.cap()` function invokes `gitlinker` and then uses the result [or no
+result] to invoke neorg commands.
 
 ## Neorg commands
 
+- `:Neorg codecap inbox` - opens your inbox file. It's just for convenience.
+I recommend linking to the inbox from your `index.norg`.
+
 ### Capturing todos
 
-By themselves, these commands don't have gitlinker support.
-(You need to invoke `codecap.cap()` as above for gitlinker support).
+By themselves, the neorg module's capturing commands don't have gitlinker support.
+(You need to invoke `codecap.cap()` as above for the gitlinker support).
 
-- If a URL is passed in as an additional parameter
+- First parameter is the vim mode (`n` or `v`).
+- If a URL is passed in as an additional parameter,
 (which `require'codecap'.cap(...)` would do for you), then that is transformed
 into a link.
-- If no URL is passed to the `popup`/`vsplit` commands, they create a link with
-a file reference instead. The link refers to the file & line number of the
-current buffer.
+- If no URL is passed to these `edit`/`vsplit`/`split`/`noshow` commands, they create
+a link with a file reference instead. The link refers to the file & line number
+of the current buffer.
 
-- `:Neorg codecap popup` - opens a small popup where you enter a todo.
-The todo ends up in a workspace file called `inbox.norg`.
-- `:Neorg codecap vsplit` - opens `inbox.norg` in a split, where you enter a todo.
-
-### Navigate to the inbox
-
-- `:Neorg codecap inbox` - opens your inbox file
+- `:Neorg codecap [vplit|edit|split|noshow]` - open a small popup where you enter
+a todo. The todo ends up in a workspace file called `inbox.norg`. The different
+subcommands dictate whether & how to show the todo in the inbox.
 
 ## Known issues/limitations
 
-- Neorg can't currently open a file link with a line number `{/ file.txt:23}`.
-See [PR](https://github.com/nvim-neorg/neorg/pull/903) - hopefully soon.
-
-- The norg spec for file links doesn't support line number ranges.
+- ~~Neorg can't currently open a file link with a line number `{/ file.txt:23}`.
+See [PR](https://github.com/nvim-neorg/neorg/pull/903) - hopefully soon.~~
+- The norg spec for file links doesn't support line number ranges, yet. So
+file links will just show the first line.
 
 ## Plans
 
-- [x] key mappings (visual, normal modes)
+- [x] key mappings (visual, normal modes).
 - Maybe variants on the same cap func.
+  - [x] copying actual code blocks, not just gitlinks / file links.
+  - [x] opening the inbox as you capture. Split,etc.
   - [ ] Tagging with a date.
-  - [ ] copying actual code blocks, not just gitlinks / file links.
-  - [ ] opening the inbox as you capture. Split,etc.
 - [x] Hopefully I'll add a visual mode command to enter the selected filename+linenums
 into the todo entry.
+- [ ] capture git-diffs?
 - Maybe a separate module for refiling/organising. Depends on GTD progress.
 
 ## 🔧 Installation
@@ -94,14 +151,13 @@ Something like this but this is WIP
             {
                 "laher/neorg-codecap",
                 keys = {
-                    { '<leader>cc', function()
-                            require'codecap'.cap('v', { ui = 'vsplit' })
-                        end, desc = 'capture a thing', mode = 'v'
-                    },
-                    { '<leader>cc', function()
-                            require'codecap'.cap('n', { ui = 'popup' })
-                        end, desc = 'capture a thing', mode = 'n'
-                    },
+                    -- indicates to lazy to load the plugin
+                    -- the mappings themselves are defined/overridden by codecap iteslf
+                    { '<leader>cce', desc = 'capture a thing. open with :edit',  mode = { 'v', 'n' } },
+                    { '<leader>ccv', desc = 'capture a thing. open inbox with :vsplit',  mode = { 'v', 'n' } },
+                    { '<leader>ccs', desc = 'capture a thing. open inbox with :split',  mode = { 'v', 'n' } },
+                    { '<leader>ccn', desc = 'capture a thing. do not open inbox',  mode = { 'v', 'n' } },
+                    { '<leader>cci', desc = 'open inbox',  mode = { 'v', 'n' } },
                 },
                 config = function()
                     require'codecap'.setup({})
@@ -124,7 +180,7 @@ Something like this but this is WIP
 
   You can then put this initial configuration in your `init.vim` file.
 
-  TODO test the setup, add key mappings. (Please see lazy config for now, for clues)
+  TODO test the setup, add override key mappings. (Please see lazy config for now, for clues)
 
   ```vim
   lua << EOF

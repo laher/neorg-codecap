@@ -5,9 +5,9 @@ function M.setup(config)
     -- note: using external mappings instead .. for now
     if config then
         -- any config?
-        --     mappings.set(config.mappings)
+        mappings.set(config.mappings)
     else
-        --     mappings.set()
+        mappings.set()
     end
 end
 
@@ -28,23 +28,23 @@ function M.get_range(mode, add_current_line_on_normal_mode)
 end
 
 function M.cap(mode, opts)
-    vim.notify(mode .. " - " .. vim.inspect(opts))
-    local ui
-    if opts and opts.ui then
-        ui = opts.ui
+    -- vim.notify(mode .. " - " .. vim.inspect(opts))
+    local inbox
+    if opts and opts.inbox then
+        inbox = opts.inbox
     else
-        ui = "vsplit"
+        inbox = "vsplit"
     end
     -- if gitlinker then call neorg-codecap via a callback
     local url = require("gitlinker").get_buf_range_url(mode, {
         action_callback = function(url)
-            local cmd = string.format("Neorg codecap %s %s %s", ui, mode, url)
+            local cmd = string.format("Neorg codecap %s %s %s", inbox, mode, url)
             vim.cmd(cmd)
         end,
     })
     if not url then
         -- otherwise just use neorg-codecap
-        local cmd = string.format("Neorg codecap %s %s", ui, mode)
+        local cmd = string.format("Neorg codecap %s %s", inbox, mode)
         vim.cmd(cmd)
     end
 end

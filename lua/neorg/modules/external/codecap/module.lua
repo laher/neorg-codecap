@@ -12,8 +12,10 @@ module.load = function()
         codecap = {
             args = 1,
             subcommands = {
-                noshow = { max_args = 2, name = "codecap.noshow" },
-                vsplit = { max_args = 2, name = "codecap.vsplit" },
+                noshow = { min_args = 1, max_args = 2, name = "codecap.noshow" },
+                vsplit = { min_args = 1, max_args = 2, name = "codecap.vsplit" },
+                split = { min_args = 1, max_args = 2, name = "codecap.split" },
+                edit = { min_args = 1, max_args = 2, name = "codecap.edit" },
                 inbox = { args = 0, name = "codecap.inbox" },
             },
         },
@@ -61,6 +63,7 @@ module.private = {
         else
             short = url
         end
+        -- vim.notify(vim.inspect(range))
         local codeblock
         if range.lstart then
           local lines = vim.api.nvim_buf_get_lines(0, range.lstart, range.lend, false)
@@ -112,26 +115,33 @@ module.public = {
         -- move cursor?
     end,
 
-    show_capture_vsplit = function(mode, url)
-        module.public.show_capture_noshow(mode, url, function(codeblock)
+    show_capture_edit = function(mode, url, edit_type)
+        module.public.show_capture(mode, url, function(codeblock)
 
           -- local codeblock
           -- url, _, codeblock = unpack(module.private.get_url_and_range(mode, url))
           -- vim.notify(url, 'info', {title = title})
           -- module.private.write_to_inbox(url, codeblock, "")
-          vim.cmd.vs(module.private.inbox_filename())
-          -- move to todo line and insert-mode
+          if edit_type == 'vsplit' then
+            vim.cmd.vs(module.private.inbox_filename())
+          elseif edit_type == 'split' then
+            vim.cmd.sp(module.private.inbox_filename())
+          else
+            vim.cmd.edit(module.private.inbox_filename())
+          end
+          -- move to todo line and (ideally) insert-mode
           local _, count = codeblock:gsub('\n', '\n')
           vim.cmd(string.format("$-%d", count+1))
           vim.cmd("norm! $")
-          vim.cmd("startinsert")
+          vim.cmd("startinsert") -- doesn't seem to work.
       end)
     end,
 
     -- url already supplied
-    show_capture_noshow = function(mode, url, callback)
+    show_capture = function(mode, url, callback)
         local short, codeblock
         url, short, codeblock = unpack(module.private.get_url_and_range(mode, url))
+        -- vim.notify(codeblock)
         module.required["core.ui"].create_prompt("NeorgCapture", short .. " : ", function(description)
             vim.cmd("bd!") -- close this prompt
             module.private.write_to_inbox(url, codeblock, description)
@@ -162,13 +172,21 @@ module.on_event = function(event)
     end
     if event.split_type[2] == "codecap.vsplit" then
         vim.schedule(function()
-            module.public.show_capture_vsplit(mode, url)
+            module.public.show_capture_edit(mode, url, 'vsplit')
+        end)
+    elseif event.split_type[2] == "codecap.split" then
+        vim.schedule(function()
+            module.public.show_capture_edit(mode, url, 'split')
+        end)
+    elseif event.split_type[2] == "codecap.edit" then
+        vim.schedule(function()
+            module.public.show_capture_edit(mode, url, 'edit')
         end)
     elseif event.split_type[2] == "codecap.noshow" then
         --vim.notify(vim.inspect(event))
 
         vim.schedule(function()
-            module.public.show_capture_noshow(mode, url)
+            module.public.show_capture(mode, url)
         end)
     elseif event.split_type[2] == "codecap.inbox" then
         vim.schedule(module.public.open_inbox)
@@ -179,6 +197,8 @@ module.events.subscribed = {
     ["core.neorgcmd"] = {
         ["codecap.noshow"] = true,
         ["codecap.vsplit"] = true,
+        ["codecap.split"] = true,
+        ["codecap.edit"] = true,
         ["codecap.inbox"] = true,
     },
 }
