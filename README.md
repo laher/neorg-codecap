@@ -59,7 +59,8 @@ Defaults mappings are as follows:
 | `<leader>ccv` | capture then open inbox in a visual split |
 | `<leader>ccs` | capture then open inbox in a horizontal split |
 | `<leader>cce` | capture then open inbox into current pane |
-| `<leader>ccc` | open inbox |
+| `<leader>cci` | open inbox |
+| `<leader>ccd` | capture `git-diff` of current file, then open inbox |
 
 _See lazy.nvim config to ensure that neorg is loaded when you invoke your mappings._
 
@@ -157,7 +158,8 @@ Something like this but this is WIP
                     { '<leader>ccv', desc = 'capture a thing. open inbox with :vsplit',  mode = { 'v', 'n' } },
                     { '<leader>ccs', desc = 'capture a thing. open inbox with :split',  mode = { 'v', 'n' } },
                     { '<leader>ccn', desc = 'capture a thing. do not open inbox',  mode = { 'v', 'n' } },
-                    { '<leader>cci', desc = 'open inbox',  mode = { 'v', 'n' } },
+                    { '<leader>cci', desc = 'open inbox',  mode = { 'n' } },
+                    { '<leader>ccd', desc = 'capture git-diff of current file. open inbox',  mode = { 'n' } },
                 },
                 config = function()
                     require'codecap'.setup({})
@@ -180,7 +182,7 @@ Something like this but this is WIP
 
   You can then put this initial configuration in your `init.vim` file.
 
-  TODO test the setup, add override key mappings. (Please see lazy config for now, for clues)
+  TODO test the setup, add override key mappings.
 
   ```vim
   lua << EOF
@@ -191,6 +193,8 @@ Something like this but this is WIP
         ["external.codecap"] = {},
     },
   }
+  -- codecap.setup will sset up default mappings.
+  -- codecap key mappings operate outside of neorg, so they are mapped outside too.
   require('codecap').setup {
 
   }
