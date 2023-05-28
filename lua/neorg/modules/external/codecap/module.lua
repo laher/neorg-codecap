@@ -65,7 +65,7 @@ module.private = {
       return output or {}
     end,
 
-    get_url_and_diff = function(mode, url)
+    get_url_and_diff = function(url)
         if not url or url == '' or url == '-' then
           vim.notify('not in a git repo. can\'t git-diff', 'warn', {title = title})
           return nil
@@ -77,7 +77,14 @@ module.private = {
           codeblock = string.format('@code %s\n%s\n@end\n', 'diff', codeblock)
         end
         if not codeblock then codeblock= '' end
-        return { url, '', codeblock }
+        return { url, codeblock }
+    end,
+
+    get_shortened = function(url)
+        if #url > 30 then
+            return string.format("%s...%s", url:sub(0, 15), url:sub(-15, #url))
+        end
+        return url
     end,
 
     get_url_and_range = function(mode, url)
@@ -87,12 +94,6 @@ module.private = {
             url = vim.api.nvim_buf_get_name(0)
             local line = vim.api.nvim_win_get_cursor(0)
             url = string.format("/ %s:%d", url, line[1])
-        end
-        local short
-        if #url > 30 then
-            short = string.format("%s...%s", url:sub(0, 15), url:sub(-15, #url))
-        else
-            short = url
         end
         -- vim.notify(vim.inspect(range))
         local codeblock
@@ -106,7 +107,7 @@ module.private = {
         end
         -- empty string won't force a linebreak before url
         if not codeblock then codeblock= '' end
-        return { url, short, codeblock }
+        return { url, codeblock }
     end,
 
     write_to_inbox = function(url, codeblock, description)
@@ -170,12 +171,13 @@ module.public = {
 
     -- url already supplied
     show_capture = function(mode, url, diff, callback)
-        local short, codeblock
+        local codeblock
         if diff then
-          url, short, codeblock = unpack(module.private.get_url_and_diff(mode, url))
+          url, codeblock = unpack(module.private.get_url_and_diff(url))
         else
-          url, short, codeblock = unpack(module.private.get_url_and_range(mode, url))
+          url, codeblock = unpack(module.private.get_url_and_range(mode, url))
         end
+        local short = module.private.get_shortened(url)
         -- vim.notify(codeblock)
         module.required["core.ui"].create_prompt("NeorgCapture", short .. " : ", function(description)
             vim.cmd("bd!") -- close this prompt
